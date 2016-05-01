@@ -1,0 +1,5 @@
+server_directory  : /home/nwn/nwnserver
+user_group        : nwn
+runscript         : nwnstartup.sh
+socket_path       : /tmp/nwnsocket
+target_session    : nwn

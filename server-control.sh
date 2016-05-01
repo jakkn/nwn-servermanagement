@@ -1,6 +1,11 @@
 #!/bin/sh
 #
-# Initialize server environment in a tmux session
+# Initialize server environment in a tmux session.
+# To attach session: tmux -S "SOCKET_PATH" attach -t "TARGET_SESSION"
+# To detach session: ctrl-b ctrl-d
+#
+# See default.yml for examples of SOCKET_PATH and TARGET_SESSION.
+#
 
 # Usage info
 show_help() {
