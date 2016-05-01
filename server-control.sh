@@ -48,14 +48,14 @@ while getopts "hS:sr:" opt; do
             show_help
             exit 0
             ;;
-        S)  stop-server.sh $OPTARG
+        S)  /bin/bash stop-server $OPTARG
             exit 0
             ;;
-        s)  start-server.sh
+        s)  /bin/bash start-server
             exit 0
             ;;
-        r)  stop-server.sh $OPTARG
-            start-server.sh
+        r)  /bin/bash stop-server $OPTARG
+            /bin/bash start-server
             exit 0
             ;;
         '?')

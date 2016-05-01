@@ -1,4 +1,3 @@
-#!/bin/bash
 # Used by server-control.sh to start the nwserver in a tmux session.
 # Do not run manually, as environment variables may be missing.
 #
