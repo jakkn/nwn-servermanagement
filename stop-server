@@ -14,49 +14,49 @@ time_stamp() {
 
 # Get process id
 for PID in `pgrep -f nwserver`; do
-    [[ readlink -f /proc/$PID/exe == $server_directory/nwserver ]] && SERVER_PID=$PID
+    [[ `readlink -f /proc/$PID/exe` == $server_directory/nwserver ]] && SERVER_PID=$PID
 done
 
 # Check if the server is actually running
 if [ -z "${SERVER_PID}" ]; then
-    printf "%s nwserver is not running. Aborting shutdown routine." "$(time_stamp)"
+    printf "%s nwserver is not running. Aborting shutdown routine.\n" "$(time_stamp)"
     exit 1
 fi
 
 # Check that tmux session exists
 tmux -S ${socket_path} has-session -t $target_session
 if [ "$?" -eq 1 ] ; then
-    printf "%s WARNING - tmux -S $socket_path -t $target_session not found. Server must have been launched manually. Please shut down manually." "$(time_stamp)"
+    printf "%s WARNING - tmux -S $socket_path -t $target_session not found. Server must have been launched manually. Please shut down manually.\n" "$(time_stamp)"
     exit 1
 fi
 
 
-printf "%s Found NWN server, pid [${SERVER_PID}]" "$(time_stamp)"
+printf "%s Found NWN server, pid [${SERVER_PID}]\n" "$(time_stamp)"
 
 if [[ "${1}" == "now" ]]; then
-    printf "%s Begin Running NWN Server Rapid Shutdown" "$(time_stamp)"
+    printf "%s Begin Running NWN Server Rapid Shutdown\n" "$(time_stamp)"
 elif [[ "${1}" == "friendly" ]]; then
-    printf "%s Begin Running NWN Server Friendly Shutdown" "$(time_stamp)"
+    printf "%s Begin Running NWN Server Friendly Shutdown\n" "$(time_stamp)"
     tmux -S ${socket_path} send-keys -t "${target_session}:0" "say The server will be shutting down in 2 minutes.`echo -ne '\015'`" Enter
     sleep 60
-    tmux -S ${socket_path} send-keys -t "${target_session}:0" "say The server will be shutting down in 1 minutes.`echo -ne '\015'`" Enter
+    tmux -S ${socket_path} send-keys -t "${target_session}:0" "say The server will be shutting down in 1 minute.`echo -ne '\015'`" Enter
     sleep 30
     tmux -S ${socket_path} send-keys -t "${target_session}:0" "say The server will be shutting down in 30 seconds.`echo -ne '\015'`" Enter
     sleep 27 
 fi
 
-printf "%s Sending shutdown message to the NWN server NOW" "$(time_stamp)"
+printf "%s Sending shutdown to server NOW\n" "$(time_stamp)"
 
 tmux -S ${socket_path} send-keys -t "${target_session}:0" "say The server is restarting NOW.`echo -ne '\015'`"
 sleep 3
 
 # First, attempt to send the console exit command.
 tmux -S ${socket_path} send-keys -t "${target_session}:0" "exit`echo -ne '\015'`"
-printf "%s Shutdown message sent, waiting for server to exit..." "$(time_stamp)"
+printf "%s Shutdown message sent, waiting for server to exit...\n" "$(time_stamp)"
 for (( i = 0; i < 3; i = i + 1 )); do
     sleep 3
     if ps -p $SERVER_PID > /dev/null; then
-        printf "%s NWN server still running on pid [$SERVER_PID], waiting for server to exit..." "$(time_stamp)"
+        printf "%s NWN server still running on pid [$SERVER_PID], waiting for server to exit...\n" "$(time_stamp)"
     else
         break
     fi
@@ -64,12 +64,12 @@ done
 
 # If the message didn't kill the server, try SIGTERM
 if ps -p $SERVER_PID > /dev/null; then
-    printf "%s Exit message failed to stop the NWN server, sending SIGTERM" "$(time_stamp)"
+    printf "%s Exit message failed to stop the NWN server, sending SIGTERM\n" "$(time_stamp)"
     kill "${SERVER_PID}"
     for (( i = 0; i < 3; i = i + 1 )); do
         sleep 3
         if ps -p $SERVER_PID > /dev/null; then
-            printf "%s NWN server still running, waiting for server to exit..." "$(time_stamp)"
+            printf "%s NWN server still running, waiting for server to exit...\n" "$(time_stamp)"
         else
             break
         fi
@@ -78,12 +78,12 @@ fi
 
 # If the SIGTERM didn't kill the server, try SIGKILL
 if ps -p $SERVER_PID > /dev/null; then
-    printf "%s Exit message failed to stop the NWN server, sending SIGKILL" "$(time_stamp)"
+    printf "%s Exit message failed to stop the NWN server, sending SIGKILL\n" "$(time_stamp)"
     kill -9 "${SERVER_PID}"
     for (( i = 0; i < 3; i = i + 1 )); do
         sleep 3
         if ps -p $SERVER_PID > /dev/null; then
-            printf "%s NWN server still running, waiting for server to exit..." "$(time_stamp)"
+            printf "%s NWN server still running, waiting for server to exit...\n" "$(time_stamp)"
         else
             break
         fi
@@ -91,10 +91,10 @@ if ps -p $SERVER_PID > /dev/null; then
 fi
 
 if ps -p $SERVER_PID > /dev/null; then
-    printf "%s WARNING - Unable to shut down the NWN server." "$(time_stamp)"
+    printf "%s WARNING - Unable to shut down the NWN server.\n" "$(time_stamp)"
     exit 1
 fi
-printf "%s The NWN server has been shutdown." "$(time_stamp)"
+printf "%s The NWN server has been shut down.\n" "$(time_stamp)"
 
 # This file is created by the server. It is not used here,
 # but cleaning it up helps to mark a clean shutdwon.

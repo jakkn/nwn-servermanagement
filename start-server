@@ -11,16 +11,16 @@ time_stamp() {
 }
 
 for PID in `pgrep -f nwserver`; do
-    [[ readlink -f /proc/$PID/exe == $server_directory/nwserver ]] && server_pid=$PID
+    [[ `readlink -f /proc/$PID/exe` == $server_directory/nwserver ]] && server_pid=$PID
 done
 if [ -n "${server_pid}" ]; then
-    printf "%s NWN server, pid [${server_pid}], is already running. Aborting startup routine." "$(time_stamp)"
+    printf "%s NWN server, pid [${server_pid}], is already running. Aborting startup routine.\n" "$(time_stamp)"
     exit 1
 fi
 
 tmux -S ${socket_path} has-session -t $target_session
-if [ "$?" -eq 1 ] ; then
-    printf "%s tmux -S $socket_path -t $target_session not found. Creating." "$(time_stamp)"
+if [ "$?" -eq 1 ]; then
+    printf "%s tmux -S $socket_path -t $target_session not found. Creating.\n" "$(time_stamp)"
     # -S  --> specify socket path
     # -s  --> name the session
     # -d  --> detach
@@ -29,10 +29,10 @@ if [ "$?" -eq 1 ] ; then
     tmux -S ${socket_path} send-keys -t "${target_session}:0" "bash" Enter
     
     # if group exists, change tmux group to enable shared session
-    { getent group $user_group } && {chgrp $user_group ${socket_path}}
+    [ {getent group $user_group} ] && {chgrp $user_group ${socket_path}}
 fi
 
-printf "%s Starting nwserver." "$(time_stamp)"
+printf "%s Starting nwserver.\n" "$(time_stamp)"
 tmux -S ${socket_path} send-keys -t "${target_session}:0" "cd $server_directory" Enter
 tmux -S ${socket_path} send-keys -t "${target_session}:0" "./$runscript" Enter
 

@@ -1,4 +1,4 @@
-#!/bin/sh
+#! /bin/bash
 #
 # Initialize server environment in a tmux session.
 # To attach session: tmux -S "SOCKET_PATH" attach -t "TARGET_SESSION"
@@ -25,26 +25,27 @@ file is specified, default.yml is used if present.
 EOF
 }
 
-# read YAML file before parsing arguments (!# resolves to last argument)
-if [ -f ${!#} ]; then
-    YML_FILE=${!#}
+# read YAML file before parsing arguments (\${$#} resolves to last argument)
+eval YML_FILE=\${$#}
+if [ -f $YML_FILE ]; then
+    echo "Reading configuration from $YML_FILE"
 elif [ -f "default.yml" ]; then
+    echo "$YML_FILE is not a valid file. Using default.yml"
     YML_FILE="default.yml"
 else
+    echo "$YML_FILE is not a valid file and no default was found. Aborting."
     show_help
     exit 1
 fi
 
-export $(sed -e 's/:[^:\/\/]/="/g;s/$/"/g;s/ *=/=/g' $YML_FILE)
+export $(sed -e 's/:[^:\/\/]/=/g;s/$//g;s/ *=/=/g' $YML_FILE)
 
 #printf 'server_directory=%s\nSOCKET_PATH=%s\nRUNSCRIPT=%s\nTARGET_SESSION=%s\nLeftovers:\n' "$server_directory" "$socket_path" "$runscript" "$target_session"
 #printf '<%s>\n' "$@"
 
 # verify paths
-[ -d ${server_directory} ] || { echo "Cannot find directory $server_directory. Aborting."; exit 1; }
-[ -x ${runscript} ] || { echo "Cannot find executable script $runscript. Aborting."; exit 1; }
-
-exit
+[ -d "$server_directory" ] || { echo "Cannot find directory $server_directory. Aborting."; exit 1; }
+[ -x "$server_directory/$runscript" ] || { echo "Cannot find executable script "$server_directory/$runscript". Aborting."; exit 1; }
 
 OPTIND=1 # Reset is necessary if getopts was used previously in the script.  It is a good idea to make this local in a function.
 while getopts "hS:sr:" opt; do
